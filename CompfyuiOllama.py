@@ -1,4 +1,5 @@
 import random
+import subprocess
 
 from ollama import Client
 from PIL import Image
@@ -7,12 +8,19 @@ import base64
 from io import BytesIO
 
 
+
 class OllamaVision:
     def __init__(self):
         pass
     
     @classmethod
     def INPUT_TYPES(s):
+        result = subprocess.run(['ollama', 'list'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        lines = result.stdout.strip().split('\n')
+        first_column = []        
+        for line in lines[1:]:
+            columns = line.split('\t')          
+            first_column.append(columns[0])
         return {
             "required": {
                 "images": ("IMAGE",),
@@ -25,11 +33,7 @@ class OllamaVision:
                     "multiline": False,
                     "default": "http://127.0.0.1:11434"
                 }),
-                "model": ("STRING", {
-                    "multiline": False,
-                    "default": "llava"
-                }),
-                
+                 "model":([first_column]) 
             },
         }
 
@@ -73,7 +77,14 @@ class OllamaGenerate:
         pass
 
     @classmethod
+       
     def INPUT_TYPES(s):
+        res=subprocess.run(['ollama', 'list'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        lines = res.stdout.strip().split('\n')
+        first_column = []    
+        for line in lines[1:]:
+            columns = line.split('\t')          
+            first_column.append(columns[0])
         return {
             "required": {
                 "prompt": ("STRING", {
@@ -85,10 +96,7 @@ class OllamaGenerate:
                     "multiline": False,
                     "default": "http://127.0.0.1:11434"
                 }),
-                "model": ("STRING", {
-                    "multiline": False,
-                    "default": "llama2"
-                }),
+                "model":([first_column]) 
             },
         }
 
@@ -140,8 +148,14 @@ class OllamaGenerateAdvance:
     def __init__(self):
         pass
 
-    @classmethod
+    @classmethod   
     def INPUT_TYPES(s):
+        result = subprocess.run(['ollama', 'list'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        lines = result.stdout.strip().split('\n')
+        first_column = []   
+        for line in lines[1:]:
+            columns = line.split('\t')          
+            first_column.append(columns[0])
         seed = random.randint(1, 2 ** 31)
         return {
             "required": {
@@ -154,10 +168,7 @@ class OllamaGenerateAdvance:
                     "multiline": False,
                     "default": "http://127.0.0.1:11434"
                 }),
-                "model": ("STRING", {
-                    "multiline": False,
-                    "default": "llama2"
-                }),
+                "model":([first_column]),
                 "system": ("STRING", {
                     "multiline": True,
                     "default": "You are an art expert, gracefully describing your knowledge in art domain.",
